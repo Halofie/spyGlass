@@ -8,8 +8,8 @@
 ## 🎯 **Active Services & Resources**
 
 ### **Region Lock**
-- ✅ **Primary Region:** `us-east-1` (N. Virginia)
-- ⚠️ **NEVER create resources in other regions** (causes duplicate charges)
+- ✅ **Primary Region:** `ap-south-2` (Hyderabad, India)
+- ⚠️ **NEVER create resources in other regions** (causes duplicate charges + higher latency)
 
 ---
 
@@ -240,12 +240,14 @@ aws ce get-cost-and-usage --time-period Start=(Get-Date -Day 1 -Hour 0 -Minute 0
 | Date | Action | Resources Modified | Notes |
 |------|--------|-------------------|-------|
 | 2025-11-04 | Tracker Created | - | Initial planning phase |
+| 2025-11-04 | Frontend Completed | - | UI built, configured for ap-south-2 |
+| 2025-11-04 | Pre-deployment Setup | - | Env config, API layer, build optimization (281KB) |
 
 ---
 
 ## 🎯 **Best Practices Applied**
 
-1. ✅ **Single Region:** All resources in `us-east-1`
+1. ✅ **Single Region:** All resources in `ap-south-2` (Hyderabad)
 2. ✅ **Tagging:** All resources tagged with `Project:SpyGlass`
 3. ✅ **CloudWatch Retention:** Set to 1 day for all log groups
 4. ✅ **EventBridge:** Manual trigger only, no auto-schedules
@@ -258,7 +260,7 @@ aws ce get-cost-and-usage --time-period Start=(Get-Date -Day 1 -Hour 0 -Minute 0
 
 ## 🚀 **Next Steps**
 
-- [ ] Set up AWS CLI with `us-east-1` as default region
+- [ ] Set up AWS CLI with `ap-south-2` as default region
 - [ ] Configure AWS Budget alert ($0 threshold)
 - [ ] Enable Free Tier usage alerts in AWS Console
 - [ ] Create CloudFormation/Serverless template (for easy cleanup)
