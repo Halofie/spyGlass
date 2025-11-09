@@ -248,7 +248,7 @@ export default function Dashboard() {
                               {copiedId === applet.id ? (
                                 <CheckCircle className="h-4 w-4 text-green-600" />
                               ) : (
-                                <Copy className="h-4 w-4" />
+                                <Copy className="h-4 w-4 " />
                               )}
                             </button>
                           </div>
