@@ -1,0 +1,31 @@
+{
+  "name": "spyglass-backend",
+  "version": "1.0.0",
+  "description": "SpyGlass IFTTT Clone - Backend API",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "serverless deploy",
+    "remove": "serverless remove",
+    "logs": "serverless logs -f",
+    "invoke": "serverless invoke -f",
+    "test": "echo \"No tests yet\""
+  },
+  "keywords": [
+    "ifttt",
+    "automation",
+    "serverless",
+    "aws"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.926.0",
+    "@aws-sdk/client-ses": "^3.926.0",
+    "@aws-sdk/lib-dynamodb": "^3.926.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "serverless": "^3.38.0",
+    "serverless-offline": "^13.3.0"
+  }
+}

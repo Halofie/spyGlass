@@ -1,5 +1,11 @@
 import axios from 'axios';
+import { CognitoUserPool } from 'amazon-cognito-identity-js';
 import config from '../config';
+
+const userPool = new CognitoUserPool({
+  UserPoolId: config.aws.cognito.userPoolId,
+  ClientId: config.aws.cognito.clientId,
+});
 
 // Create axios instance
 const api = axios.create({
@@ -12,12 +18,16 @@ const api = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    const user = localStorage.getItem('user');
-    if (user) {
-      const { token } = JSON.parse(user);
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+    const currentUser = userPool.getCurrentUser();
+    if (currentUser) {
+      return new Promise((resolve) => {
+        currentUser.getSession((err, session) => {
+          if (!err && session.isValid()) {
+            config.headers.Authorization = `Bearer ${session.getIdToken().getJwtToken()}`;
+          }
+          resolve(config);
+        });
+      });
     }
     return config;
   },
@@ -31,8 +41,11 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Unauthorized - clear auth and redirect to login
-      localStorage.removeItem('user');
+      // Unauthorized - sign out and redirect to login
+      const currentUser = userPool.getCurrentUser();
+      if (currentUser) {
+        currentUser.signOut();
+      }
       window.location.href = '/login';
     }
     return Promise.reject(error);

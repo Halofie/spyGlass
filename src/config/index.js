@@ -4,13 +4,10 @@ const config = {
     useMock: import.meta.env.VITE_USE_MOCK_API === 'true',
   },
   aws: {
-    region: import.meta.env.VITE_AWS_REGION || 'ap-south-2',
+    region: import.meta.env.VITE_AWS_REGION || 'ap-south-1',
     cognito: {
-      userPoolId: import.meta.env.VITE_AWS_COGNITO_USER_POOL_ID || '',
-      clientId: import.meta.env.VITE_AWS_COGNITO_CLIENT_ID || '',
-    },
-    apiGateway: {
-      url: import.meta.env.VITE_AWS_API_GATEWAY_URL || '',
+      userPoolId: import.meta.env.VITE_AWS_USER_POOL_ID || '',
+      clientId: import.meta.env.VITE_AWS_USER_POOL_CLIENT_ID || '',
     },
   },
   features: {

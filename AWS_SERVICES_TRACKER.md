@@ -8,7 +8,7 @@
 ## 🎯 **Active Services & Resources**
 
 ### **Region Lock**
-- ✅ **Primary Region:** `ap-south-2` (Hyderabad, India)
+- ✅ **Primary Region:** `ap-south-1` (Mumbai, India)
 - ⚠️ **NEVER create resources in other regions** (causes duplicate charges + higher latency)
 
 ---
@@ -17,19 +17,19 @@
 
 | Service | Status | Free Tier Limit | Cleanup Required | Notes |
 |---------|--------|-----------------|------------------|-------|
-| **Lambda** | 🔴 Not Created | 1M requests/month | ✅ Yes - Delete functions | - |
-| **API Gateway** | 🔴 Not Created | 1M calls/month (12mo) | ✅ Yes - Delete APIs | - |
-| **DynamoDB** | 🔴 Not Created | 25 GB, 25 RCU/WCU | ✅ Yes - Delete tables | - |
-| **Cognito** | 🔴 Not Created | 50K MAUs (permanent) | ✅ Yes - Delete user pools | - |
-| **CloudWatch Logs** | 🔴 Not Created | 5 GB storage | ✅ YES - SET RETENTION! | **HIGH RISK** |
-| **EventBridge** | 🔴 Not Created | 14M invocations/month | ✅ YES - Delete all rules | **HIGH RISK** |
+| **Lambda** | � DEPLOYED | 1M requests/month | ✅ Yes - Delete functions | 8 functions created |
+| **API Gateway** | � DEPLOYED | 1M calls/month (12mo) | ✅ Yes - Delete APIs | ID: vpza0e2s7d |
+| **DynamoDB** | � DEPLOYED | 25 GB, 25 RCU/WCU | ✅ Yes - Delete tables | 2 tables created |
+| **Cognito** | � DEPLOYED | 50K MAUs (permanent) | ✅ Yes - Delete user pools | Pool ID: ap-south-1_c0MiFDyX3 |
+| **CloudWatch Logs** | � AUTO-CREATED | 5 GB storage | ✅ YES - SET RETENTION! | **HIGH RISK** |
+| **EventBridge** | � DEPLOYED | 14M invocations/month | ✅ YES - Delete all rules | **HIGH RISK** |
 | **SES** | 🔴 Not Created | 3K emails/month | ⚠️ Medium - Verify emails only | Must be same region |
 | **SNS** | 🔴 Not Created | 1M publishes | ✅ Yes - Delete topics | - |
-| **S3** | 🔴 Not Created | 5 GB storage | ✅ Yes - Delete buckets | - |
+| **S3** | � AUTO-CREATED | 5 GB storage | ✅ Yes - Delete buckets | Serverless deployment bucket |
 | **CloudFront** | 🔴 Not Created | 50 GB transfer | ✅ Yes - Delete distributions | Takes 15 mins to delete |
 | **Amplify** | 🔴 Not Created | 1000 build mins/month | ✅ YES - Disable auto-deploy | **HIGH RISK** |
-| **IAM Roles** | 🔴 Not Created | Free (unlimited) | ✅ Yes - Delete custom roles | - |
-| **CloudFormation** | 🔴 Not Created | Free (management only) | ✅ YES - Delete entire stack | Easiest cleanup method |
+| **IAM Roles** | � AUTO-CREATED | Free (unlimited) | ✅ Yes - Delete custom roles | Created by Serverless |
+| **CloudFormation** | � DEPLOYED | Free (management only) | ✅ YES - Delete entire stack | Stack: spyglass-backend-dev |
 
 ---
 
@@ -240,14 +240,14 @@ aws ce get-cost-and-usage --time-period Start=(Get-Date -Day 1 -Hour 0 -Minute 0
 | Date | Action | Resources Modified | Notes |
 |------|--------|-------------------|-------|
 | 2025-11-04 | Tracker Created | - | Initial planning phase |
-| 2025-11-04 | Frontend Completed | - | UI built, configured for ap-south-2 |
+| 2025-11-04 | Frontend Completed | - | UI built, configured for ap-south-1 |
 | 2025-11-04 | Pre-deployment Setup | - | Env config, API layer, build optimization (281KB) |
 
 ---
 
 ## 🎯 **Best Practices Applied**
 
-1. ✅ **Single Region:** All resources in `ap-south-2` (Hyderabad)
+1. ✅ **Single Region:** All resources in `ap-south-1` (Mumbai)
 2. ✅ **Tagging:** All resources tagged with `Project:SpyGlass`
 3. ✅ **CloudWatch Retention:** Set to 1 day for all log groups
 4. ✅ **EventBridge:** Manual trigger only, no auto-schedules
@@ -260,7 +260,7 @@ aws ce get-cost-and-usage --time-period Start=(Get-Date -Day 1 -Hour 0 -Minute 0
 
 ## 🚀 **Next Steps**
 
-- [ ] Set up AWS CLI with `ap-south-2` as default region
+- [ ] Set up AWS CLI with `ap-south-1` as default region
 - [ ] Configure AWS Budget alert ($0 threshold)
 - [ ] Enable Free Tier usage alerts in AWS Console
 - [ ] Create CloudFormation/Serverless template (for easy cleanup)
@@ -291,6 +291,66 @@ If you see unexpected charges:
    - AWS Console → Billing → Cost Explorer
    - Filter by tag: `Project:SpyGlass`
    - Identify culprit service
+
+---
+
+## 📦 **Deployed Resources (November 4, 2025)**
+
+### **API Gateway**
+- **ID:** `vpza0e2s7d`
+- **Endpoint:** `https://vpza0e2s7d.execute-api.ap-south-1.amazonaws.com/dev`
+- **Stage:** dev
+- **Region:** ap-south-1 (Mumbai)
+
+### **Cognito User Pool**
+- **Pool ID:** `ap-south-1_c0MiFDyX3`
+- **Client ID:** `7nap5fau84bu915532pnve974l`
+- **Region:** ap-south-1 (Mumbai)
+
+### **DynamoDB Tables**
+1. **Applets Table**
+   - Name: `spyglass-applets-dev`
+   - Partition Key: `userId`
+   - Sort Key: `appletId`
+   
+2. **Executions Table**
+   - Name: `spyglass-executions-dev`
+   - Partition Key: `appletId`
+   - Sort Key: `executionId`
+   - TTL: 30 days
+
+### **Lambda Functions** (8 total)
+1. `spyglass-backend-dev-createApplet`
+2. `spyglass-backend-dev-getApplets`
+3. `spyglass-backend-dev-getApplet`
+4. `spyglass-backend-dev-updateApplet`
+5. `spyglass-backend-dev-deleteApplet`
+6. `spyglass-backend-dev-toggleApplet`
+7. `spyglass-backend-dev-webhookTrigger`
+8. `spyglass-backend-dev-scheduledTrigger`
+
+### **S3 Buckets**
+- **Deployment Bucket:** `spyglass-backend-dev-serverlessdeploymentbucket-ekbssmfwtxeo`
+
+### **CloudFormation Stack**
+- **Stack Name:** `spyglass-backend-dev`
+- **Region:** ap-south-1
+
+---
+
+## 🗑️ **Quick Cleanup Commands**
+
+```powershell
+# Delete entire stack (EASIEST METHOD)
+cd c:\Users\varun\Documents\MyCode\spyGlass\backend
+npx serverless remove --stage dev --region ap-south-1
+
+# Set CloudWatch Logs retention to 1 day (DO THIS NOW!)
+aws logs describe-log-groups --log-group-name-prefix "/aws/lambda/spyglass" --region ap-south-1 --query 'logGroups[*].logGroupName' --output text | ForEach-Object { aws logs put-retention-policy --log-group-name $_ --retention-in-days 1 --region ap-south-1 }
+
+# List all resources
+aws cloudformation describe-stack-resources --stack-name spyglass-backend-dev --region ap-south-1
+```
 
 ---
 

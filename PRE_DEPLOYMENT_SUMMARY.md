@@ -6,7 +6,7 @@
 - [x] `.env.example` with all required variables
 - [x] `.env.local` for local development
 - [x] `src/config/index.js` config manager
-- [x] Region set to `ap-south-2` (Hyderabad, India)
+- [x] Region set to `ap-south-1` (Mumbai, India)
 
 ### 2. ✅ **API Service Layer**
 - [x] `src/services/api.js` - Axios instance with interceptors
@@ -34,8 +34,8 @@
 ### 6. ✅ **Documentation**
 - [x] `DEPLOYMENT.md` - Complete deployment guide
 - [x] `AWS_SERVICES_TRACKER.md` - Service tracking for cost prevention
-- [x] `AWS_Hyderabad_GUIDE.md` - Region-specific considerations
-- [x] All docs updated for ap-south-2 region
+- [x] `AWS_Mumbai_GUIDE.md` - Region-specific considerations
+- [x] All docs updated for ap-south-1 region
 
 ---
 
@@ -69,7 +69,7 @@ spyGlass/
 ├── package.json        ✅
 ├── DEPLOYMENT.md       ✅
 ├── AWS_SERVICES_TRACKER.md  ✅
-└── AWS_Hyderabad_GUIDE.md ✅
+└── AWS_Mumbai_GUIDE.md ✅
 ```
 
 ---
@@ -112,7 +112,7 @@ spyGlass/
    - Routes for all CRUD ops
 
 5. **Cognito**
-   - User Pool in ap-south-2
+   - User Pool in ap-south-1
    - App Client
    - Update frontend to use Cognito SDK
 
@@ -149,7 +149,7 @@ spyGlass/
 - [ ] Free Tier alerts enabled
 - [ ] Budget alert configured ($0.01)
 - [ ] AWS CLI installed and configured
-- [ ] Default region set to `ap-south-2`
+- [ ] Default region set to `ap-south-1`
 
 ### Backend Deployment (Next) 📋
 - [ ] Create DynamoDB tables
@@ -182,7 +182,7 @@ npm run dev
 ```powershell
 # Update .env.local
 VITE_USE_MOCK_API=false
-VITE_AWS_API_GATEWAY_URL=https://xxxxx.execute-api.ap-south-2.amazonaws.com/prod
+VITE_AWS_API_GATEWAY_URL=https://xxxxx.execute-api.ap-south-1.amazonaws.com/prod
 
 npm run dev
 # Test with real AWS backend
@@ -204,7 +204,7 @@ npm run preview
 
 ## Cost Prevention Measures ✅
 
-- [x] All configs set to ap-south-2 (single region)
+- [x] All configs set to ap-south-1 (single region)
 - [x] AWS_SERVICES_TRACKER.md for monitoring
 - [x] CloudWatch log retention will be set to 1 day
 - [x] EventBridge rules will be disabled by default
@@ -227,16 +227,16 @@ npm run lint         # Check for errors
 ### AWS CLI (after backend setup)
 ```powershell
 # List Lambda functions
-aws lambda list-functions --region ap-south-2
+aws lambda list-functions --region ap-south-1
 
 # List DynamoDB tables
-aws dynamodb list-tables --region ap-south-2
+aws dynamodb list-tables --region ap-south-1
 
 # Check Cognito user pools
-aws cognito-idp list-user-pools --max-results 10 --region ap-south-2
+aws cognito-idp list-user-pools --max-results 10 --region ap-south-1
 
 # View CloudWatch logs
-aws logs tail /aws/lambda/spyglass-function --follow --region ap-south-2
+aws logs tail /aws/lambda/spyglass-function --follow --region ap-south-1
 ```
 
 ---
@@ -246,9 +246,9 @@ aws logs tail /aws/lambda/spyglass-function --follow --region ap-south-2
 ### Required for AWS Deployment
 ```env
 VITE_USE_MOCK_API=false
-VITE_AWS_REGION=ap-south-2
-VITE_AWS_API_GATEWAY_URL=https://xxxxx.execute-api.ap-south-2.amazonaws.com/prod
-VITE_AWS_COGNITO_USER_POOL_ID=ap-south-2_xxxxxxxxx
+VITE_AWS_REGION=ap-south-1
+VITE_AWS_API_GATEWAY_URL=https://xxxxx.execute-api.ap-south-1.amazonaws.com/prod
+VITE_AWS_COGNITO_USER_POOL_ID=ap-south-1_xxxxxxxxx
 VITE_AWS_COGNITO_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
@@ -261,7 +261,7 @@ VITE_AWS_COGNITO_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
 - Mock API for testing
 - Production build optimized
 - Error handling in place
-- Configured for Hyderabad region
+- Configured for Mumbai region
 
 **Backend Status:** 📋 **TO BE BUILT**
 - Need to create Lambda functions
@@ -276,7 +276,7 @@ VITE_AWS_COGNITO_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
 ## Files to Keep Handy
 
 1. **AWS_SERVICES_TRACKER.md** - Track all AWS resources for cleanup
-2. **AWS_Hyderabad_GUIDE.md** - Region-specific tips
+2. **AWS_Mumbai_GUIDE.md** - Region-specific tips
 3. **DEPLOYMENT.md** - Step-by-step deployment guide
 4. **.env.example** - Environment variables template
 

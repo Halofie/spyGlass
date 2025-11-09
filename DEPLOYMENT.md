@@ -94,7 +94,7 @@ Expected output: ~200-300 KB (gzipped)
 5. Set environment variables:
    ```
    VITE_USE_MOCK_API=false
-   VITE_AWS_REGION=ap-south-2
+   VITE_AWS_REGION=ap-south-1
    VITE_AWS_API_GATEWAY_URL=<your-api-url>
    VITE_AWS_COGNITO_USER_POOL_ID=<your-pool-id>
    VITE_AWS_COGNITO_CLIENT_ID=<your-client-id>
@@ -135,7 +135,7 @@ Transform: AWS::Serverless-2016-10-31
 service: spyglass-backend
 provider:
   name: aws
-  region: ap-south-2
+  region: ap-south-1
 ```
 
 ### Services to Create
@@ -266,9 +266,9 @@ VITE_API_BASE_URL=http://localhost:3000/api
 ### Production (AWS Amplify/Environment)
 ```env
 VITE_USE_MOCK_API=false
-VITE_AWS_REGION=ap-south-2
-VITE_AWS_API_GATEWAY_URL=https://xxxxx.execute-api.ap-south-2.amazonaws.com/prod
-VITE_AWS_COGNITO_USER_POOL_ID=ap-south-2_xxxxxxxxx
+VITE_AWS_REGION=ap-south-1
+VITE_AWS_API_GATEWAY_URL=https://xxxxx.execute-api.ap-south-1.amazonaws.com/prod
+VITE_AWS_COGNITO_USER_POOL_ID=ap-south-1_xxxxxxxxx
 VITE_AWS_COGNITO_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 

@@ -10,6 +10,9 @@ export default defineConfig({
       },
     }),
   ],
+  define: {
+    'global': 'globalThis',
+  },
   build: {
     // Optimize build output
     target: 'es2015',

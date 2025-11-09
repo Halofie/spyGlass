@@ -29,9 +29,10 @@ export default function Signup() {
 
     try {
       await signup(email, password, name);
-      navigate('/dashboard');
+      // Redirect to verification page
+      navigate('/verify-email', { state: { email } });
     } catch (err) {
-      setError('Failed to create account. Please try again.');
+      setError(err.message || 'Failed to create account. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Check, Calendar, Globe, Mail, Clock } from 'lucide-react';
+import { appletService } from '../services';
 
 export default function CreateApplet() {
   const navigate = useNavigate();
@@ -8,6 +9,7 @@ export default function CreateApplet() {
   const [appletName, setAppletName] = useState('');
   const [trigger, setTrigger] = useState({ type: '', config: {} });
   const [action, setAction] = useState({ type: '', config: {} });
+  const [saving, setSaving] = useState(false);
 
   const triggerTypes = [
     {
@@ -55,29 +57,32 @@ export default function CreateApplet() {
     setStep(3);
   };
 
-  const handleSave = () => {
-    const newApplet = {
-      id: Date.now().toString(),
-      name: appletName || 'Unnamed Applet',
-      trigger: {
-        type: trigger.type,
-        value: getTriggerDisplay(),
-      },
-      action: {
-        type: action.type,
-        value: getActionDisplay(),
-      },
-      enabled: true,
-      lastRun: 'Never',
-      createdAt: new Date().toISOString(),
-    };
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const newApplet = {
+        name: appletName || 'Unnamed Applet',
+        trigger: {
+          type: trigger.type,
+          value: getTriggerDisplay(),
+          config: trigger.config,
+        },
+        action: {
+          type: action.type,
+          value: getActionDisplay(),
+          config: action.config,
+        },
+        enabled: true,
+      };
 
-    const storedApplets = localStorage.getItem('applets');
-    const applets = storedApplets ? JSON.parse(storedApplets) : [];
-    applets.push(newApplet);
-    localStorage.setItem('applets', JSON.stringify(applets));
-
-    navigate('/dashboard');
+      await appletService.create(newApplet);
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error creating applet:', error);
+      alert('Failed to create applet. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const getTriggerDisplay = () => {
@@ -321,8 +326,11 @@ export default function CreateApplet() {
                             config: { ...action.config, to: e.target.value }
                           })}
                           className="input-field"
-                          placeholder="recipient@example.com"
+                          placeholder="varunkrishnan220055@gmail.com (verified email)"
                         />
+                        <p className="text-xs text-gray-500 mt-1">
+                          ⚠️ In sandbox mode, only verified emails can receive messages
+                        </p>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -406,9 +414,10 @@ export default function CreateApplet() {
               </button>
               <button
                 onClick={handleSave}
-                className="btn-primary flex-1"
+                disabled={saving}
+                className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Create Applet
+                {saving ? 'Creating...' : 'Create Applet'}
               </button>
             </div>
           </div>

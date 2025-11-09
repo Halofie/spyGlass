@@ -1,0 +1,265 @@
+service: spyglass-backend
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: ap-south-1
+  stage: ${opt:stage, 'dev'}
+  memorySize: 128  # Minimum to save costs
+  timeout: 10
+  
+  environment:
+    APPLETS_TABLE: ${self:service}-applets-${self:provider.stage}
+    EXECUTIONS_TABLE: ${self:service}-executions-${self:provider.stage}
+    REGION: ${self:provider.region}
+  
+  iam:
+    role:
+      statements:
+        # DynamoDB permissions
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:service}-applets-${self:provider.stage}"
+            - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:service}-executions-${self:provider.stage}"
+        # SES permissions for sending emails
+        - Effect: Allow
+          Action:
+            - ses:SendEmail
+            - ses:SendRawEmail
+          Resource: "*"
+        # EventBridge permissions
+        - Effect: Allow
+          Action:
+            - events:PutRule
+            - events:PutTargets
+            - events:RemoveTargets
+            - events:DeleteRule
+          Resource: "*"
+
+functions:
+  # Applet CRUD operations
+  createApplet:
+    handler: functions/applets/create.handler
+    events:
+      - http:
+          path: applets
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  getApplets:
+    handler: functions/applets/list.handler
+    events:
+      - http:
+          path: applets
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  getApplet:
+    handler: functions/applets/get.handler
+    events:
+      - http:
+          path: applets/{id}
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  updateApplet:
+    handler: functions/applets/update.handler
+    events:
+      - http:
+          path: applets/{id}
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  deleteApplet:
+    handler: functions/applets/delete.handler
+    events:
+      - http:
+          path: applets/{id}
+          method: delete
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  toggleApplet:
+    handler: functions/applets/toggle.handler
+    events:
+      - http:
+          path: applets/{id}/toggle
+          method: patch
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  # Webhook handler
+  webhookTrigger:
+    handler: functions/webhooks/trigger.handler
+    events:
+      - http:
+          path: webhooks/{id}
+          method: post
+          cors: true
+
+  # Scheduled trigger (called by EventBridge)
+  scheduledTrigger:
+    handler: functions/applets/scheduled.handler
+
+resources:
+  Resources:
+    # Cognito User Pool Authorizer
+    ApiGatewayAuthorizer:
+      Type: AWS::ApiGateway::Authorizer
+      Properties:
+        Name: CognitoAuthorizer
+        Type: COGNITO_USER_POOLS
+        IdentitySource: method.request.header.Authorization
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        ProviderARNs:
+          - !GetAtt UserPool.Arn
+
+    # Cognito User Pool
+    UserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: ${self:service}-user-pool-${self:provider.stage}
+        AutoVerifiedAttributes:
+          - email
+        UsernameAttributes:
+          - email
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 8
+            RequireUppercase: true
+            RequireLowercase: true
+            RequireNumbers: true
+            RequireSymbols: false
+        Schema:
+          - Name: email
+            Required: true
+            Mutable: false
+          - Name: name
+            Required: true
+            Mutable: true
+
+    # Cognito User Pool Client
+    UserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: ${self:service}-client-${self:provider.stage}
+        UserPoolId:
+          Ref: UserPool
+        ExplicitAuthFlows:
+          - ALLOW_USER_PASSWORD_AUTH
+          - ALLOW_USER_SRP_AUTH
+          - ALLOW_REFRESH_TOKEN_AUTH
+        GenerateSecret: false
+
+    # DynamoDB Tables
+    AppletsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-applets-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST  # On-demand pricing
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: appletId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+          - AttributeName: appletId
+            KeyType: RANGE
+        Tags:
+          - Key: Project
+            Value: SpyGlass
+
+    ExecutionsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-executions-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: appletId
+            AttributeType: S
+          - AttributeName: executionId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: appletId
+            KeyType: HASH
+          - AttributeName: executionId
+            KeyType: RANGE
+        TimeToLiveSpecification:
+          Enabled: true
+          AttributeName: ttl  # Auto-delete old executions after 30 days
+        Tags:
+          - Key: Project
+            Value: SpyGlass
+
+  Outputs:
+    ApiGatewayRestApiId:
+      Value:
+        Ref: ApiGatewayRestApi
+      Export:
+        Name: ${self:service}-${self:provider.stage}-ApiGatewayRestApiId
+
+    ApiGatewayRestApiRootResourceId:
+      Value:
+        Fn::GetAtt:
+          - ApiGatewayRestApi
+          - RootResourceId
+      Export:
+        Name: ${self:service}-${self:provider.stage}-ApiGatewayRestApiRootResourceId
+
+    ApiUrl:
+      Description: "API Gateway endpoint URL"
+      Value:
+        Fn::Join:
+          - ""
+          - - "https://"
+            - Ref: ApiGatewayRestApi
+            - ".execute-api.${self:provider.region}.amazonaws.com/${self:provider.stage}"
+
+    UserPoolId:
+      Description: "Cognito User Pool ID"
+      Value:
+        Ref: UserPool
+      Export:
+        Name: ${self:service}-${self:provider.stage}-UserPoolId
+
+    UserPoolClientId:
+      Description: "Cognito User Pool Client ID"
+      Value:
+        Ref: UserPoolClient
+      Export:
+        Name: ${self:service}-${self:provider.stage}-UserPoolClientId
+
+plugins:
+  - serverless-offline
